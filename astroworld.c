@@ -2,123 +2,103 @@
 #include <stdlib.h>
 
 typedef struct node {
-    int value;
-    struct node *left;
-    struct node *right;
+ int val;
+ struct node *left;
+ struct node *right;
 } node;
 
-node* createnode() {
-    node *n = (node*) malloc(sizeof(node));
-    n->value = 1;
-    n->left = NULL;
-    n->right = NULL;
-    return n;
+node* newnode(){
+ node *x=(node*)malloc(sizeof(node));
+ x->val=1;
+ x->left=NULL;
+ x->right=NULL;
+ return x;
 }
 
-node* buildtree(int *arr, int n) {
-    if (n == 0 || arr[0] == 0)
-        return NULL;
-
-    node *root = createnode();
-    node **queue = (node**) malloc(n * sizeof(node*));
-    int front = 0, rear = 0, index = 1;
-
-    queue[rear++] = root;
-
-    while (front < rear && index < n) {
-        node *current = queue[front++];
-
-        if (index < n && arr[index] == 1) {
-            current->left = createnode();
-            queue[rear++] = current->left;
-        }
-        index++;
-
-        if (index < n && arr[index] == 1) {
-            current->right = createnode();
-            queue[rear++] = current->right;
-        }
-        index++;
-    }
-
-    free(queue);
-    return root;
+node* maketree(int *arr,int n){
+ if(n==0||arr[0]==0)return NULL;
+ node *root=newnode();
+ node **q=(node**)malloc(n*sizeof(node*));
+ int f=0,r=0,i=1;
+ q[r++]=root;
+ while(f<r&&i<n){
+  node *t=q[f++];
+  if(i<n&&arr[i]==1){
+   t->left=newnode();
+   q[r++]=t->left;
+  }
+  i++;
+  if(i<n&&arr[i]==1){
+   t->right=newnode();
+   q[r++]=t->right;
+  }
+  i++;
+ }
+ free(q);
+ return root;
 }
 
-int dfs(node *root, int *phones) {
-    if (!root) return 1;
-
-    int leftState = dfs(root->left, phones);
-    int rightState = dfs(root->right, phones);
-
-    if (leftState == 0 || rightState == 0) {
-        (*phones)++;
-        return 2;
-    }
-
-    if (leftState == 2 || rightState == 2)
-        return 1;
-
-    return 0;
+int dfs(node *t,int *phones){
+ if(!t)return 1;
+ int l=dfs(t->left,phones);
+ int r=dfs(t->right,phones);
+ if(l==0||r==0){
+  (*phones)++;
+  return 2;
+ }
+ if(l==2||r==2)return 1;
+ return 0;
 }
 
-int solution(node *root) {
-    int total = 0;
-    if (dfs(root, &total) == 0)
-        total++;
-    return total;
+int dominatingset(node *root){
+ int c=0;
+ if(dfs(root,&c)==0)c++;
+ return c;
 }
 
-int isprime(int num) {
-    if (num < 2) return 0;
-    for (int i = 2; i * i <= num; i++)
-        if (num % i == 0)
-            return 0;
-    return 1;
+int isprime(int x){
+ if(x<2)return 0;
+ for(int i=2;i*i<=x;i++)if(x%i==0)return 0;
+ return 1;
 }
 
-void primenumbers(int count, int *primes) {
-    int number = 2, found = 0;
-    while (found < count) {
-        if (isprime(number)) {
-            primes[found++] = number;
-        }
-        number++;
-    }
+void makeprimes(int n,int *p){
+ int k=0,num=2;
+ while(k<n){
+  if(isprime(num)){
+   p[k++]=num;
+  }
+  num++;
+ }
 }
 
-int main() {
-    int n;
-    if (scanf("%d", &n) != 1)
-        return 0;
+int main(){
+ int n;
+ if(scanf("%d",&n)!=1)return 0;
 
-    int *levelorder = (int*) malloc(n * sizeof(int));
-    for (int i = 0; i < n; i++)
-        scanf("%d", &levelorder[i]);
+ int *a=(int*)malloc(n*sizeof(int));
+ for(int i=0;i<n;i++)scanf("%d",&a[i]);
 
-    node *root = buildtree(levelorder, n);
-    int m = solution(root);
+ node *root=maketree(a,n);
+ int m=dominatingset(root);
 
-    int l, r;
-    if (scanf("%d %d", &l, &r) == 2) {
-        int *primes = (int*) malloc(m * sizeof(int));
-        primenumbers(m, primes);
+ int l,r;
+ if(scanf("%d %d",&l,&r)==2){
+  int *p=(int*)malloc(m*sizeof(int));
+  makeprimes(m,p);
+  int out=0;
+  for(int i=0;i<m;i++){
+   for(int j=i+1;j<m;j++){
+    int x=p[i]^p[j];
+    if(x<l||x>r)out++;
+   }
+  }
+  printf("%d\n%d\n",m,out);
+  free(p);
+ }else{
+  printf("%d\n",m);
+ }
 
-        int out = 0;
-        for (int i = 0; i < m; i++) {
-            for (int j = i + 1; j < m; j++) {
-                int xorValue = primes[i] ^ primes[j];
-                if (xorValue < l || xorValue > r)
-                    out++;
-            }
-        }
-
-        printf("%d\n%d\n", m, out);
-        free(primes);
-    } else {
-        printf("%d\n", m);
-    }
-
-    free(levelorder);
-    return 0;
+ free(a);
+ return 0;
 }
