@@ -11,97 +11,75 @@ platform* createplatform(){
  return &p;
 }
 
-int addpost(char *user,char *cap){
+void addpost(char *user,char *cap){
  post *x=createpost(user,cap);
- if(!x)return 0;
+ if(!x)return;
  if(p.posts==NULL)p.posts=x;
  else{
   post *t=p.posts;
   while(t->next)t=t->next;
   t->next=x;
  }
- p.last=x;
- return 1;
 }
 
-int deletepost(int n){
- if(!p.posts)return 0;
- post *t=p.posts,*prev=NULL;
- int k=1;
- while(t&&k<n){prev=t;t=t->next;k++;}
- if(!t)return 0;
- if(prev==NULL)p.posts=t->next;
- else prev->next=t->next;
- free(t);
- return 1;
+void viewposts(){
+ post *t=p.posts; int i=1;
+ while(t){
+  printf("%d. %s : %s\n",i++,t->username,t->caption);
+  t=t->next;
+ }
 }
 
-post* viewpost(int n){
+void addcomment(char *user,char *text,int n){
  post *t=p.posts; int k=1;
  while(t&&k<n){t=t->next;k++;}
- if(!t)return NULL;
- p.last=t;
- return t;
-}
-
-post* currpost(){ return p.last; }
-
-int addcomment(char *user,char *text){
- if(!p.last)return 0;
+ if(!t)return;
  comment *c=createcomment(user,text);
- if(!c)return 0;
- if(p.last->comments==NULL)p.last->comments=c;
+ if(!t->comments)t->comments=c;
  else{
-  comment *t=p.last->comments;
-  while(t->next)t=t->next;
-  t->next=c;
+  comment *y=t->comments;
+  while(y->next)y=y->next;
+  y->next=c;
  }
- return 1;
 }
 
-int deletecomment(int n){
- if(!p.last||!p.last->comments)return 0;
- comment *t=p.last->comments,*prev=NULL;
- int k=1;
- while(t&&k<n){prev=t;t=t->next;k++;}
- if(!t)return 0;
- if(prev==NULL)p.last->comments=t->next;
- else prev->next=t->next;
- free(t);
- return 1;
-}
-
-comment* viewcomments(){
- if(!p.last)return NULL;
- return p.last->comments;
-}
-
-int addreply(char *user,char *text,int n){
- if(!p.last||!p.last->comments)return 0;
- comment *t=p.last->comments; int k=1;
+void viewcomments(int n){
+ post *t=p.posts; int k=1;
  while(t&&k<n){t=t->next;k++;}
- if(!t)return 0;
+ if(!t){printf("no such post\n");return;}
+ comment *c=t->comments; int i=1;
+ while(c){
+  printf("   %d. %s : %s\n",i++,c->username,c->content);
+  reply *r=c->replies; int j=1;
+  while(r){
+   printf("       (%d.%d) %s : %s\n",i-1,j++,r->username,r->content);
+   r=r->next;
+  }
+  c=c->next;
+ }
+}
+
+void addreply(char *user,char *text,int pn,int cn){
+ post *t=p.posts; int k=1;
+ while(t&&k<pn){t=t->next;k++;}
+ if(!t)return;
+ comment *c=t->comments; int i=1;
+ while(c&&i<cn){c=c->next;i++;}
+ if(!c)return;
  reply *r=createreply(user,text);
- if(!t->replies)t->replies=r;
+ if(!c->replies)c->replies=r;
  else{
-  reply *x=t->replies;
+  reply *x=c->replies;
   while(x->next)x=x->next;
   x->next=r;
  }
- return 1;
 }
 
-int deletereply(int n,int m){
- if(!p.last||!p.last->comments)return 0;
- comment *t=p.last->comments; int k=1;
- while(t&&k<n){t=t->next;k++;}
- if(!t||!t->replies)return 0;
- reply *r=t->replies,*prev=NULL;
- int c=1;
- while(r&&c<m){prev=r;r=r->next;c++;}
- if(!r)return 0;
- if(prev==NULL)t->replies=r->next;
- else prev->next=r->next;
- free(r);
- return 1;
+void deletepost(int n){
+ post *t=p.posts,*prev=NULL; int k=1;
+ while(t&&k<n){prev=t;t=t->next;k++;}
+ if(!t)return;
+ if(prev==NULL)p.posts=t->next;
+ else prev->next=t->next;
+ free(t);
 }
