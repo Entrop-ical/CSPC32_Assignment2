@@ -4,79 +4,49 @@
 #include "platform.h"
 
 int main(){
- platform *pf=createplatform();
- char cmd[50];
+ platform *pf=NULL;
+ int choice=0;
+
  while(1){
-  if(scanf("%s",cmd)==EOF)break;
-
-  if(strcmp(cmd,"create")==0){
-   scanf("%s",cmd);
-   if(strcmp(cmd,"platform")==0)pf=createplatform();
+  printf("\n1 create platform\n2 add post\n3 view posts\n4 add comment\n5 add reply\n6 view comments\n7 delete post\n8 exit\nchoice: ");
+  if(scanf("%d",&choice)!=1)break;
+  if(choice==1){
+   pf=createplatform();
+   printf("platform created\n");
   }
-
-  else if(strcmp(cmd,"add")==0){
-   scanf("%s",cmd);
-   if(strcmp(cmd,"post")==0){
-    char u[50],cap[200];
-    scanf("%s",u); getchar();
-    scanf("%[^\n]",cap);
-    addpost(u,cap);
-   }
-   else if(strcmp(cmd,"comment")==0){
-    char u[50],text[200];
-    scanf("%s",u); getchar();
-    scanf("%[^\n]",text);
-    addcomment(u,text);
-   }
-   else if(strcmp(cmd,"reply")==0){
-    char u[50],text[200]; int n;
-    scanf("%s",u); getchar();
-    scanf("%[^\n]",text);
-    scanf("%d",&n);
-    addreply(u,text,n);
-   }
+  else if(choice==2){
+   char u[50],c[200];
+   printf("username: "); scanf("%s",u);
+   printf("caption: "); getchar(); scanf("%[^\n]",c);
+   addpost(u,c);
   }
-
-  else if(strcmp(cmd,"view")==0){
-   scanf("%s",cmd);
-   if(strcmp(cmd,"post")==0){
-    int n; scanf("%d",&n);
-    post *x=viewpost(n);
-    if(x)printf("%s %s\n",x->username,x->caption);
-    else printf("post not found\n");
-   }
-   else if(strcmp(cmd,"comments")==0){
-    comment *c=viewcomments();
-    while(c){
-     printf("%s %s\n",c->username,c->content);
-     reply *r=c->replies;
-     while(r){
-      printf("%s %s\n",r->username,r->content);
-      r=r->next;
-     }
-     c=c->next;
-    }
-   }
+  else if(choice==3){
+   viewposts();
   }
-
-  else if(strcmp(cmd,"delete")==0){
-   scanf("%s",cmd);
-   if(strcmp(cmd,"post")==0){
-    int n; scanf("%d",&n);
-    deletepost(n);
-   }
-   else if(strcmp(cmd,"comment")==0){
-    int n; scanf("%d",&n);
-    deletecomment(n);
-   }
-   else if(strcmp(cmd,"reply")==0){
-    int n,m; scanf("%d %d",&n,&m);
-    deletereply(n,m);
-   }
+  else if(choice==4){
+   int n; char u[50],t[200];
+   printf("post number: "); scanf("%d",&n);
+   printf("username: "); scanf("%s",u);
+   printf("comment: "); getchar(); scanf("%[^\n]",t);
+   addcomment(u,t,n);
   }
-
-  else if(strcmp(cmd,"exit")==0)break;
+  else if(choice==5){
+   int pn,cn; char u[50],t[200];
+   printf("post number: "); scanf("%d",&pn);
+   printf("comment number: "); scanf("%d",&cn);
+   printf("username: "); scanf("%s",u);
+   printf("reply: "); getchar(); scanf("%[^\n]",t);
+   addreply(u,t,pn,cn);
+  }
+  else if(choice==6){
+   int n; printf("post number: "); scanf("%d",&n);
+   viewcomments(n);
+  }
+  else if(choice==7){
+   int n; printf("post number: "); scanf("%d",&n);
+   deletepost(n);
+  }
+  else if(choice==8)break;
  }
-
  return 0;
 }
